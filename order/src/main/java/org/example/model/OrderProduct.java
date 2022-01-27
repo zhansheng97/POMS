@@ -6,6 +6,15 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import javax.persistence.*;
 import java.util.Objects;
 
+@NamedNativeQuery(name = "OrderProduct.findOrderProductResponseByOrderId",
+        query = "SELECT product.product_code as productCode,order_product.quantity as quantity FROM order_product INNER JOIN product on order_product.product_id = product.id WHERE order_id = ?1",
+        resultSetMapping = "Mapping.OrderProductResponse")
+@SqlResultSetMapping(name = "Mapping.OrderProductResponse",
+        classes = @ConstructorResult(targetClass = OrderProductResponse.class,
+                columns = {
+                        @ColumnResult(name = "productCode", type=String.class),
+                        @ColumnResult(name = "quantity",type=Integer.class),
+                }))
 @Entity
 public class OrderProduct {
 

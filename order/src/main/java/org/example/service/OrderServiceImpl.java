@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.ProductDto;
 import org.example.exception.OrderNotFoundException;
 import org.example.model.*;
 import org.example.repository.OrderProductRepository;
@@ -85,20 +86,46 @@ public class OrderServiceImpl implements  OrderService{
         List<Product> products =new ArrayList<>();
         RestTemplate restTemplate = new RestTemplate();
         for (ProductRequest productRequest: productRequestList) {
-            Product product = restTemplate.getForObject("http://localhost:8081/api/v1/product/" + productRequest.getProductCode(), Product.class);
+            ProductDto productDto = restTemplate.getForObject("http://localhost:8081/api/v1/product/" + productRequest.getProductCode(), ProductDto.class);
+            Product product = new Product();
+            product.setId(productDto.getId());
+            product.setName(productDto.getName());
+            product.setDescription(productDto.getDescription());
+            product.setProductCode(productDto.getProductCode());
+            product.setPrice(productDto.getPrice());
             products.add(product);
         }
         return products;
     }
 
     @Override
-    public Order getOrderById(Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException(String.format("Order with id %o not found", id)));
+    public OrderResponse getOrderById(Long id) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException(String.format("Order with id %o not found", id)));
+        OrderResponse orderResponse = getOrderResponseByOrderId(order,id);
+        return orderResponse;
 
+    }
+
+    private OrderResponse getOrderResponseByOrderId(Order order, Long id) {
+        List<OrderProductResponse> orderProductResponsesList = orderProductRepository.findOrderProductResponseByOrderId(id);
+        OrderResponse orderResponse = new OrderResponse();
+        orderResponse.setId(order.getId());
+        orderResponse.setUsername(order.getUsername());
+        orderResponse.setPhoneNumber(order.getPhoneNumber());
+        orderResponse.setOrderProducts(orderProductResponsesList);
+        return orderResponse;
     }
 
     @Override
-    public List<Order> getAllOrder() {
-            return orderRepository.findAll();
+    public List<OrderResponse>getAllOrder() {
+        List<Order> allOrders = orderRepository.findAll();
+        List<OrderResponse> orderResponseList = new ArrayList<>();
+        for (Order order : allOrders) {
+            OrderResponse or = getOrderResponseByOrderId(order, order.getId());
+            orderResponseList.add(or);
+        }
+        return orderResponseList;
+
     }
+
 }
