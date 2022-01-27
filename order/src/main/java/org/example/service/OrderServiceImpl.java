@@ -86,7 +86,7 @@ public class OrderServiceImpl implements  OrderService{
         List<Product> products =new ArrayList<>();
         RestTemplate restTemplate = new RestTemplate();
         for (ProductRequest productRequest: productRequestList) {
-            ProductDto productDto = restTemplate.getForObject("http://localhost:8081/api/v1/product/" + productRequest.getProductCode(), ProductDto.class);
+            ProductDto productDto = restTemplate.getForObject("http://localhost:8083/api/v1/product/" + productRequest.getProductCode(), ProductDto.class);
             Product product = new Product();
             product.setId(productDto.getId());
             product.setName(productDto.getName());
