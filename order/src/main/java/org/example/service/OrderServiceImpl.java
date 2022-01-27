@@ -21,11 +21,13 @@ public class OrderServiceImpl implements  OrderService{
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final OrderProductRepository orderProductRepository;
+    private final RestTemplate restTemplate;
     
-    public OrderServiceImpl(OrderRepository orderRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository,RestTemplate restTemplate) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.orderProductRepository = orderProductRepository;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -84,7 +86,6 @@ public class OrderServiceImpl implements  OrderService{
 
     private List<Product> getPoductDetail(List<ProductRequest> productRequestList) {
         List<Product> products =new ArrayList<>();
-        RestTemplate restTemplate = new RestTemplate();
         for (ProductRequest productRequest: productRequestList) {
             ProductDto productDto = restTemplate.getForObject("http://localhost:8083/api/v1/product/" + productRequest.getProductCode(), ProductDto.class);
             Product product = new Product();
